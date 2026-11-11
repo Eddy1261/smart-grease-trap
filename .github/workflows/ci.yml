@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Mosquitto (for the E2E broker test)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mosquitto
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run Python tests
+        run: python -m pytest backend/tests simulator/tests -q
+
+  native-cpp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run native C++ tests
+        run: |
+          g++ -std=c++17 -I firmware/include -I firmware/src firmware/test/test_native.cpp -o test_native
+          ./test_native
+          g++ -std=c++17 -I firmware/include -I firmware/src firmware/test/test_avm_reference.cpp -o test_avm
+          ./test_avm
+          g++ -std=c++17 -I firmware/include -I firmware/src firmware/test/test_fault_injection.cpp -o test_fault
+          ./test_fault
+          g++ -std=c++17 -I firmware/include -I firmware/src firmware/test/test_buffer_reconnect.cpp -o test_buffer
+          ./test_buffer
+          g++ -std=c++17 -I firmware/include -I firmware/src firmware/test/test_valve_heater.cpp -o test_valve
+          ./test_valve
+          g++ -std=c++17 -DMOCK_HARDWARE=0 -DNATIVE_STUB_TEST -I firmware/test/stubs -I firmware/src -I firmware/include firmware/test/test_hw_integration.cpp -o test_hw
+          ./test_hw
+
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            firmware/.pio
+          key: pio-${{ runner.os }}-${{ hashFiles('firmware/platformio.ini') }}
+      - name: Install PlatformIO
+        run: pip install platformio
+      - name: Build native env
+        run: python -m platformio run -e native
+        working-directory: firmware
+      - name: Build ESP32 env
+        run: python -m platformio run -e esp32dev
+        working-directory: firmware

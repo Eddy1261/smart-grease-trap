@@ -1,0 +1,107 @@
+# Environment & secrets
+.env
+*.env.local
+*.pem
+*.key
+*.cert
+serviceAccountKey.json
+# Cloudflare Tunnel (quick tunnels need no credentials; named tunnels do)
+.cloudflared/
+cloudflared/
+tunnel-token*
+*.tunnel
+# Operator's real credentials file (commit only the .example.h template)
+firmware/include/private_network_config.h
+!firmware/include/private_network_config.example.h
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.coverage.*
+
+# PlatformIO & Embedded
+.pio/
+.pioenvs/
+.piolibdeps/
+firmware/.pio/
+firmware/.pioenvs/
+firmware/.piolibdeps/
+*.hex
+*.bin
+*.elf
+*.exe
+*.o
+*.obj
+
+# Databases & logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+data/records/
+data/reports/*.pdf
+data/scenarios/
+data/exports/
+data/calibration/
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Runtime artifacts (regenerated locally, never committed)
+data/
+analysis/
+*.bak
+*.zst
+
+# Tool caches
+.codebase-memory/
+.ruff_cache/
+.mypy_cache/
+
+# Internal / non-runtime documents (kept local only)
+brief_commissioning_smart_grease_trap_agentic.md
+SMART_GREASE_TRAP_AGENTIC_CLI_CONTEXT.md
+firmware/COMMISSIONING.md
+firmware/src/commissioning/
+docs/avm_validation.md
+docs/calibration_parameters.md
+docs/commissioning_checklist.md
+docs/commissioning_results.md
+docs/mqtt_audit.md
+docs/phase1_exit_audit.md
+docs/readiness_boundary.md
+docs/resource_audit.md
+docs/traceability.md
+docs/video_dashboard_script.md
+docs/remote_access_cloudflare.md

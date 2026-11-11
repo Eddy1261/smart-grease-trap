@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#090e11">
+  <meta name="description" content="Smart Grease Trap C-251 live telemetry and oil-water separation monitor.">
+  <title>Smart Grease Trap — C-251 Monitor</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23090e11'/%3E%3Cpath d='M6 10h20M6 16h12M6 22h20' stroke='%2358c8bd' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to dashboard</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="Smart Grease Trap dashboard home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" focusable="false">
+            <path d="M5 9.5h22M5 16h13M5 22.5h22" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="25.5" cy="16" r="2.8" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-title">Smart Grease Trap</span>
+          <span class="brand-subtitle">C-251 · Oil–water separation monitor</span>
+        </span>
+      </a>
+
+      <div class="topbar-actions">
+        <div id="connection-badge" class="connection-badge" data-state="connecting" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="connection-status">Connecting…</span>
+        </div>
+
+        <button id="btn-enable-notifications" class="btn btn-ghost" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+            <path d="M10 21h4"/>
+          </svg>
+          <span class="btn-label">Enable notifications</span>
+        </button>
+
+        <button id="btn-generate-report" class="btn btn-primary" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 2v6h6"/>
+            <path d="M8 13h8M8 17h6"/>
+          </svg>
+          <span class="btn-label">Generate report</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="page">
+    <div class="notice" role="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 11v5M12 8h.01"/>
+      </svg>
+      <p><strong>Operational estimate.</strong>&nbsp;C<sub>oil</sub> is derived from the turbidity model, not a gravimetric laboratory result.</p>
+    </div>
+
+    <section class="section" aria-labelledby="overview-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Live telemetry</p>
+          <h1 id="overview-title">System overview</h1>
+        </div>
+        <p class="section-note">Auto-refresh · 2 s</p>
+      </div>
+
+      <div class="metrics-grid">
+        <article class="metric-card metric-status">
+          <div class="metric-head">
+            <span class="metric-label">Backend status</span>
+            <span class="metric-code">SYS</span>
+          </div>
+          <div class="metric-body">
+            <span id="badge-status" class="state-badge" data-state="unknown">AWAITING DATA</span>
+          </div>
+          <div class="metric-foot">
+            <span>FSM</span>
+            <span id="val-fsm-state" class="mono">--</span>
+          </div>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-head">
+            <span class="metric-label">Accumulated volume</span>
+            <span class="metric-code">AVM</span>
+          </div>
+          <div class="metric-value">
+            <span id="val-volume" class="value">0.0</span>
+            <span class="unit">mL</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="Accumulated volume" aria-valuemin="0" aria-valuemax="7200" aria-valuenow="0">
+            <div id="bar-volume"></div>
+          </div>
+          <div class="metric-foot">
+            <span>Limit <span id="val-volume-limit" class="mono">7,200</span> mL</span>
+            <span id="val-volume-pct" class="mono">0%</span>
+          </div>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-head">
+            <span class="metric-label">Outlet oil concentration</span>
+            <span class="metric-code">C-OIL</span>
+          </div>
+          <div class="metric-value">
+            <span id="val-oil-conc" class="value">0.0</span>
+            <span class="unit">mg/L</span>
+          </div>
+          <div class="metric-foot">
+            <span>Limit 10 mg/L</span>
+            <span id="val-oil-status" class="inline-state" data-state="unknown">--</span>
+          </div>
+          <div class="metric-foot">
+            <span>Turbidity</span>
+            <span>NTU <span id="val-turbidity" class="mono">—</span></span>
+          </div>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-head">
+            <span class="metric-label">Collector load cell</span>
+            <span class="metric-code">LOAD</span>
+          </div>
+          <div class="metric-value">
+            <span id="val-mass" class="value">0.0</span>
+            <span class="unit">g</span>
+          </div>
+          <div class="metric-foot">
+            <span>Capacity 2,000 g</span>
+          </div>
+          <div class="metric-foot">
+            <span>Container</span>
+            <span id="val-container-status" class="inline-state" data-state="unknown">Nominal</span>
+          </div>
+        </article>
+
+        <article class="metric-card">
+          <div class="metric-head">
+            <span class="metric-label">Actuator states</span>
+            <span class="metric-code">ACT</span>
+          </div>
+          <div class="actuator-list">
+            <div class="actuator-row">
+              <span>Skimmer PWM</span>
+              <span id="val-pwm" class="value" data-state="idle">0</span>
+            </div>
+            <div class="actuator-row">
+              <span>Solenoid (NC)</span>
+              <span id="val-solenoid" class="value" data-state="idle">CLOSED</span>
+            </div>
+            <div class="actuator-row">
+              <span>Heater</span>
+              <span id="val-heater" class="value" data-state="idle">OFF</span>
+            </div>
+          </div>
+          <div class="manual-control">
+            <button id="btn-manual-discharge" class="btn btn-danger" type="button"
+                    aria-pressed="false" data-state="idle">
+              <span class="btn-label">Open valve + pump</span>
+            </button>
+            <p id="manual-discharge-hint" class="metric-foot">
+              Manual override: valve + pump only; C_oil/volume bypassed.
+            </p>
+          </div>
+          <div id="val-last-update" class="metric-foot">Last update: --</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="trends-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Telemetry history</p>
+          <h2 id="trends-title">Trends</h2>
+        </div>
+        <p class="section-note">Last 30 samples</p>
+      </div>
+
+      <div class="charts-grid">
+        <article class="panel chart-panel">
+          <header class="panel-head">
+            <div>
+              <h3>Ultrasonic level</h3>
+              <p>Raw, median, and EMA-filtered distance</p>
+            </div>
+            <span class="unit-tag">cm</span>
+          </header>
+          <div class="chart-box">
+            <canvas id="chart-ultrasonic" role="img" aria-label="Ultrasonic distance chart comparing raw, median, and EMA-filtered values"></canvas>
+          </div>
+        </article>
+
+        <article class="panel chart-panel">
+          <header class="panel-head">
+            <div>
+              <h3>Accumulated volume</h3>
+              <p>AVM volume against the critical threshold</p>
+            </div>
+            <span class="unit-tag">mL</span>
+          </header>
+          <div class="chart-box">
+            <canvas id="chart-volume" role="img" aria-label="Accumulated volume chart against the critical volume threshold"></canvas>
+          </div>
+        </article>
+
+        <article class="panel chart-panel">
+          <header class="panel-head">
+            <div>
+              <h3>Outlet oil concentration</h3>
+              <p>C<sub>oil</sub> against the 10 mg/L discharge limit</p>
+            </div>
+            <span class="unit-tag">mg/L</span>
+          </header>
+          <div class="chart-box">
+            <canvas id="chart-oil" role="img" aria-label="Outlet oil concentration chart against the discharge limit"></canvas>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="events-title">
+      <article class="panel events-panel">
+        <header class="panel-head">
+          <div>
+            <p class="eyebrow">Audit trail</p>
+            <h2 id="events-title">System transition &amp; safety events</h2>
+          </div>
+          <p class="section-note">Latest 15 · auto-refresh</p>
+        </header>
+        <div id="event-log-body" class="event-list" role="list">
+          <p class="empty-state">No events logged yet.</p>
+        </div>
+      </article>
+    </section>
+
+    <footer class="page-footer">
+      <span>Smart Grease Trap · Phase 1</span>
+      <span>Local-first telemetry · C-251</span>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/app.js"></script>
+  <script src="/notifications.js?v=20261028b"></script>
+</body>
+</html>
